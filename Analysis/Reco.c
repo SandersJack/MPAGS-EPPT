@@ -31,6 +31,13 @@ void Reco() {
 	TH2F *h2 = new TH2F("h2","PLOT",100,-0.1,4.1,1000,-100,1);
         TH2F *h3 = new TH2F("h3","PLOT",100,-0.1,4.1,1000,-100,1);
 
+	double fVD1_x[nentries][5];
+        double fVD1_z[nentries][5];
+       	double fVD1_y[nentries][5];
+	
+	double fVD2_x[nentries][5];
+        double fVD2_z[nentries][5];
+        double fVD2_y[nentries][5];
 	
 	for (Int_t i=0; i<nentries; i++) {
 		Long64_t tentry = t->LoadTree(i);
@@ -39,18 +46,18 @@ void Reco() {
 		BD1_z->GetEntry(tentry);
 		BD1_y->GetEntry(tentry);
 	
-		double VD1_x[nD1Hits];
-		double VD1_z[nD1Hits];
-		double VD1_y[nD1Hits];
+		//double VD1_x[nD1Hits];
+		//double VD1_z[nD1Hits];
+		//double VD1_y[nD1Hits];
 
 		//out << PD1_x->size() << "," << PD1_z->size() << endl;
 		for (UInt_t t=0; t<PD1_x->size(); t++) {
-			VD1_x[t] = PD1_x->at(t);
-			VD1_z[t] = PD1_z->at(t);
-			VD1_y[t] = PD1_y->at(t);
+			fVD1_x[i][t] = PD1_x->at(t);
+			fVD1_z[i][t] = PD1_z->at(t);
+			fVD1_y[i][t] = PD1_y->at(t);
 
 			//cout << VD1_z[t] << endl;
-			h2->Fill(VD1_z[t],VD1_x[t]);
+			h2->Fill(fVD1_z[i][t],fVD1_x[i][t]);
 		}
 
 		Int_t nD2Hits = D2Hits->GetEntry(i);
@@ -58,38 +65,57 @@ void Reco() {
                 BD2_z->GetEntry(tentry);
 		BD2_y->GetEntry(tentry);
         
-                double VD2_x[nD2Hits];
-                double VD2_z[nD2Hits];
-		double VD2_y[nD2Hits];
+                //double VD2_x[nD2Hits];
+                //double VD2_z[nD2Hits];
+		//double VD2_y[nD2Hits];
 
 		for (UInt_t t=0; t<PD2_x->size(); t++) {
-                        VD2_x[t] = PD2_x->at(t);
-                        VD2_z[t] = PD2_z->at(t);
-			VD2_y[t] = PD2_y->at(t);
-                        h3->Fill(VD2_z[t],VD2_x[t]);
+                        fVD2_x[i][t] = PD2_x->at(t);
+                        fVD2_z[i][t] = PD2_z->at(t);
+			fVD2_y[i][t] = PD2_y->at(t);
+                        h3->Fill(fVD2_z[i][t],fVD2_x[i][t]);
                 }
 
 		
 		
 	}
+	cout << "Saving pdf" <<endl;
+        TCanvas canvas("canvas");
+        canvas.Print("output.pdf[");
+        canvas.Clear();
 	h2->Draw();
+	canvas.Print("output.pdf[");
+        canvas.Clear();
 	h3->Draw();
-
+	canvas.Print("output.pdf");
+        canvas.Print("output.pdf]");
 //	\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
 //	\/											\/
 //	\/				Start of Reconstruction					\/
 //	\/											\/
 //	\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+	
+	double fzChmbr1[5] , fzChmbr2[5];
+	//std::vector<double> vec[10]; 
+	
+	fzChmbr1[0] = - 6. ;// * m
+	fzChmbr1[1] = - 5.5;// * m
+	fzChmbr1[2] = - 5. ;// * m
+	fzChmbr1[3] = - 4.5;// * m 
+	fzChmbr1[4] = - 4. ;// * m
 
-	double fzChmbr0 = - 6. ;// * m
-	double fzChmbr1 = - 5.5;// * m
-	double fzChmbr2 = - 5. ;// * m
-	double fzChmbr3 = - 4.5;// * m 
-	double fzChmbr4 = - 4. ;// * m
+	fzChmbr2[0] =   4.0;// * m
+	fzChmbr2[1] =   4.5;// * m
+	fzChmbr2[2] =   5. ;// * m
+	fzChmbr2[3] =   5.5;// * m
+	fzChmbr2[4] =   6. ;// * m  
+	
+	for(Int_t i=0; i<nentries; i++) {
+		std::vector<double> vec[10];    
+		for (Int_t t=0; t<5; t++) {
+			vec[i] = {fVD1_x[i][t], fVD1_y[i][t] , fzChmbr1[t] };
+			vec[i+5] = {fVD2_x[i][t], fVD2_y[i][t] , fzChmbr2[t] }; 
+		}
+	}
 
-	double fzChmbr5 =   4.0;// * m
-	double fzChmbr6 =   4.5;// * m
-	double fzChmbr7 =   5. ;// * m
-	double fzChmbr8 =   5.5;// * m
-	double fzChmbr9 =   6. ;// * m  
 }
