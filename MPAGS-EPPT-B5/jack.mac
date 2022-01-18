@@ -12,7 +12,7 @@
 /B5/detector/armAngle 0. deg
 
 # Set the magnetic field strength
-/B5/field/value 1. tesla
+/B5/field/value 0.5 tesla
 
 # Set the particle that will be generated 
 # (choice: mu+, e+, pi+, kaon+, proton)
@@ -30,4 +30,4 @@
 /B5/generator/sigmaAngle 0. deg
 
 # Run five events
-/run/beamOn 5
+/run/beamOn 10000
