@@ -3,9 +3,31 @@
 #include <stddef.h>
 #include "TRandom.h"
 
-double momentum(double B,double L, double theta) {
-        return (0.3*B*L)/(2*sin(theta/2));
+struct Fitvals {
+    double grad;
+    double chi2;
+};
+
+double Getmomentum(double B,double L, double grad) {
+        double angle = atan(grad);
+        double p = (0.3*B*L)/(2*sin(angle/2));
+	return p;
 }
+
+struct Fitvals Getgradient(double xval[5], double zval[5]){
+	struct Fitvals v;
+	double xerrors[5] {0.1,0.1,0.1,0.1,0.1};
+        double zerrors[5] {0  ,  0,  0,  0,  0};
+	TGraphErrors* line = new TGraphErrors(5, zval, xval, zerrors, xerrors);
+       	line->Fit("pol1");
+        double gradient = abs(line->GetFunction("pol1")->GetParameter(1) / 1000);
+	double chi2 = line->GetFunction("pol1")->GetChisquare();
+	v.grad = gradient;
+	v.chi2 = chi2;
+	return v;
+}
+
+
 
 
 void Reco() {
@@ -412,51 +434,30 @@ void Reco() {
 						vecA2c4[z2][1] = fVD2_y[i][t];
                                                 z2++;
                                         }
-					cout << z2 << endl;
 				}
                         }
 
-		double xerrors1[5] {0.1,0.1,0.1,0.1,0.1};
-                double zerrors1[5] {0  ,  0,  0,  0,  0};
                 double xval1[5] {vecA1c0[0][0], vecA1c1[0][0], vecA1c2[0][0], vecA1c3[0][0], vecA1c4[0][0]};
                 double zval1[5] {fzArm1[0], fzArm1[1], fzArm1[2], fzArm1[3], fzArm1[4]};
-                TGraphErrors* line_before = new TGraphErrors(5, zval1, xval1, zerrors1, xerrors1);
-                line_before->Fit("pol1");
-                double grad_before = abs(line_before->GetFunction("pol1")->GetParameter(1) / 1000);
-
-		double xerrors2[5] {0.1,0.1,0.1,0.1,0.1};
-		double zerrors2[5] {0  ,  0,  0,  0,  0};
+                struct Fitvals vals_pre;
+		vals_pre = Getgradient(xval1,zval1);
+		double grad_before = vals_pre.grad;
+		double chi2_before = vals_pre.chi2;
+		
 		double xval2[5] {vecA2c0[0][0], vecA2c1[0][0], vecA2c2[0][0], vecA2c3[0][0], vecA2c4[0][0]};
 		double zval2[5] {fzArm2[0], fzArm2[1], fzArm2[2], fzArm2[3], fzArm2[4]};
-		TGraphErrors* line_after = new TGraphErrors(5, zval2, xval2, zerrors2, xerrors2);
-		line_after->Fit("pol1");
-		double grad_after =  abs(line_after->GetFunction("pol1")->GetParameter(1) / 1000);
+		struct Fitvals vals_post;
+		vals_post = Getgradient(xval2,zval2);
+		double grad_after = vals_post.grad;
+		double chi2_after = vals_post.chi2;
 
-		cout << xval2[0] <<endl;
-		cout << xval2[1] <<endl;
-		cout << xval2[2] <<endl;
-		cout << xval2[3] <<endl;
-		cout << xval2[4] <<endl;
-
-
-		double grad = abs(grad_before+grad_after);
-		double angle = atan(grad);
-		double p = 0.3 /(2*sin(angle/2));
+		//double grad = abs(grad_before+grad_after);
+		double grad = (grad_before+grad_after)/(1+grad_before*grad_after);
+		//double p = 0.3 /(2*sin(angle/2));
+		double p = Getmomentum(0.5,2,grad);
 		cout << p << endl;
 		h10->Fill(p);
-		/*
-		double xdiff = abs(vecA1c4[0][0]-vecA2c0[0][0])/1000;
-		//cout <<vec[0][0] <<vec[9][0] << endl;
-		double zdiff = abs(fzArm2[0]);
-		double theta = atan(xdiff/zdiff);
-		double length = sqrt(pow(xdiff,2) + pow(2,2));
-		double mom = momentum(0.5,length,theta);
-		cout<< vecA1c4[0][0] << "-" << vecA2c0[0][0] << endl;
-		cout<<xdiff<<endl;
-		//cout<<theta<<endl;
-		cout << mom  << endl;
-		h10->Fill(mom);
-*/
+
 	}
 	TCanvas canvas2("canvas");
 	h10->Draw();
