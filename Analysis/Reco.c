@@ -31,7 +31,7 @@ struct Fitvals Getgradient(double xval[5], double zval[5]){
 
 
 void Reco() {
-	TFile *f = new TFile("rootfiles/100evnt.root");
+	TFile *f = new TFile("rootfiles/1000evnt.root");
 	f->ls();
 	TTree *t = (TTree*)f->Get("B5");
 	Int_t nentries = t->GetEntries();
@@ -60,7 +60,7 @@ void Reco() {
         t->SetBranchAddress("Dc2HitsVector_z",&PD2_z, &BD2_z);
 	t->SetBranchAddress("Dc2HitsVector_y",&PD2_y, &BD2_y);
 	
-	TH2F *h2 = new TH2F("h2","PLOT",100,-0.1,4.1,1000,-100,1);
+	TH2F *h2 = new TH2F("h2","PLOT",100,-0.1,4.1,1000,-1,1);
         TH2F *h3 = new TH2F("h3","PLOT",100,-0.1,4.1,1000,-100,1);
 
 	double fVD1_x[nentries][5];
@@ -451,12 +451,72 @@ void Reco() {
 		double grad_after = vals_post.grad;
 		double chi2_after = vals_post.chi2;
 
-		//double grad = abs(grad_before+grad_after);
 		double grad = (grad_before+grad_after)/(1+grad_before*grad_after);
-		//double p = 0.3 /(2*sin(angle/2));
 		double p = Getmomentum(0.5,2,grad);
 		cout << p << endl;
 		h10->Fill(p);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// 		This allows for multi hit detection. It loops over all hits and find the best fit for the 
+// 		tragectory. 
+// 		As this is a nested loop it takes a while to run so just taking normal hits is fine 
+// 		for the moment.
+//
+	if (false) {
+		double xval1op[5];
+		struct Fitvals optimise;
+		double grad_before_op;
+		double chi2_min {100};
+
+		for (Int_t p=0; p < nhitsA1c0; p++) {
+			for (Int_t o=0; o < nhitsA1c1; o++) {
+				for (Int_t l=0; l<nhitsA1c2; l++) {
+					for (Int_t k=0; k<nhitsA1c3; k++) {
+                                		for (Int_t j=0; j<nhitsA1c3; j++) {
+							xval1op[0] = vecA1c0[p][0];
+							xval1op[1] = vecA1c1[o][0];
+							xval1op[2] = vecA1c2[l][0];
+							xval1op[3] = vecA1c3[k][0];
+							xval1op[4] = vecA1c4[j][0];
+							optimise = Getgradient(xval1op,zval1);
+
+							if (optimise.chi2 < chi2_min) {
+								grad_before_op = optimise.grad;
+							}
+										
+                                        	}
+                                	}
+				}
+			}
+		}
+		double xval2op[5];
+                struct Fitvals optimise2;
+                double grad_after_op;
+                double chi2_min2 {100};
+
+                for (Int_t p=0; p < nhitsA2c0; p++) {
+                        for (Int_t o=0; o < nhitsA2c1; o++) {
+                                for (Int_t l=0; l<nhitsA2c2; l++) {
+                                        for (Int_t k=0; k<nhitsA2c3; k++) {
+                                                for (Int_t j=0; j<nhitsA1c3; j++) {
+                                                        xval2op[0] = vecA2c0[p][0];
+                                                        xval2op[1] = vecA2c1[o][0];
+                                                        xval2op[2] = vecA2c2[l][0];
+                                                        xval2op[3] = vecA2c3[k][0];
+                                                        xval2op[4] = vecA2c4[j][0];
+                                                        optimise2 = Getgradient(xval2op,zval2);
+
+                                                        if (optimise2.chi2 < chi2_min2) {
+                                                                grad_after_op = optimise2.grad;
+                                                        }
+
+                                                }
+                                        }
+                                }
+                        }
+                }
+	}
 
 	}
 	TCanvas canvas2("canvas");
