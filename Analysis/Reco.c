@@ -5,12 +5,13 @@
 
 struct Fitvals {
     double grad;
+    double inter;
     double chi2;
 };
 
 double Getmomentum(double B,double L, double grad) {
         double angle = atan(grad);
-        double p = (0.3*B*L)/(2*sin(angle/2));
+        double p = (0.3*B*L)/(2*sin(angle));
 	return p;
 }
 
@@ -19,16 +20,22 @@ struct Fitvals Getgradient(double xval[5], double zval[5]){
 	double xerrors[5] {0.1,0.1,0.1,0.1,0.1};
         double zerrors[5] {0  ,  0,  0,  0,  0};
 	TGraphErrors* line = new TGraphErrors(5, zval, xval, zerrors, xerrors);
-       	line->Fit("pol1");
-        double gradient = abs(line->GetFunction("pol1")->GetParameter(1) / 1000);
+       	line->Fit("pol1", "q");
+        double gradient = line->GetFunction("pol1")->GetParameter(1);
 	double chi2 = line->GetFunction("pol1")->GetChisquare();
-	v.grad = gradient;
+	double c = line->GetFunction("pol1")->GetParameter(0);
+	v.grad = gradient/1000;
 	v.chi2 = chi2;
+	v.inter= c/1000;
+
 	return v;
 }
 
-
-
+double straightline(double zval, double m, double c) {
+	double x;
+		x = m*zval + c;
+	return x;
+}
 
 void Reco() {
 	TFile *f = new TFile("rootfiles/1000evnt.root");
@@ -135,19 +142,22 @@ void Reco() {
 	double fzArm1[5] , fzArm2[5];
 	//std::vector<double> vec[10]; 
 	
-	fzArm1[0] = - 6. ;// * m
-	fzArm1[1] = - 5.5;// * m
-	fzArm1[2] = - 5. ;// * m
-	fzArm1[3] = - 4.5;// * m 
-	fzArm1[4] = - 4. ;// * m
+	fzArm1[0] =   0; //- 6. ;// * m
+	fzArm1[1] =   1;  //- 5.5;// * m
+	fzArm1[2] =   2;   //- 5. ;// * m
+	fzArm1[3] =   3;  //- 4.5;// * m 
+	fzArm1[4] =   4;  //- 4. ;// * m
 
-	fzArm2[0] =   4.0;// * m
-	fzArm2[1] =   4.5;// * m
-	fzArm2[2] =   5. ;// * m
-	fzArm2[3] =   5.5;// * m
-	fzArm2[4] =   6. ;// * m  
+	fzArm2[0] =   0; //4.0;// * m
+	fzArm2[1] =   1; //4.5;// * m
+	fzArm2[2] =   2; //  //5. ;// * m
+	fzArm2[3] =   3;  //5.5;// * m
+	fzArm2[4] =   4;   //6. ;// * m  
 
-	TH1F *h10 = new TH1F("h10","Momentum",100,40,60);	
+	TH1F *h10 = new TH1F("h10","Momentum",100,40,60);
+	TMultiGraph *mg = new TMultiGraph();	
+	TMultiGraph *mg2 = new TMultiGraph();
+		 //nentries
 	for(Int_t i=0; i<nentries; i++) {
 		Int_t nhitsA1c0 = 0;
 		Int_t nhitsA1c1 = 0;
@@ -436,25 +446,30 @@ void Reco() {
                                         }
 				}
                         }
-
+		double zval1[5] {fzArm1[0], fzArm1[1], fzArm1[2], fzArm1[3], fzArm1[4]};
+		double zval2[5] {fzArm2[0], fzArm2[1], fzArm2[2], fzArm2[3], fzArm2[4]};
+		double grad_before{0};
+		double grad_after{0};
+		double inter_before{0};
+		double inter_after{0};
+		
+		if (false) {
                 double xval1[5] {vecA1c0[0][0], vecA1c1[0][0], vecA1c2[0][0], vecA1c3[0][0], vecA1c4[0][0]};
-                double zval1[5] {fzArm1[0], fzArm1[1], fzArm1[2], fzArm1[3], fzArm1[4]};
                 struct Fitvals vals_pre;
 		vals_pre = Getgradient(xval1,zval1);
-		double grad_before = vals_pre.grad;
+		grad_before = vals_pre.grad;
 		double chi2_before = vals_pre.chi2;
 		
 		double xval2[5] {vecA2c0[0][0], vecA2c1[0][0], vecA2c2[0][0], vecA2c3[0][0], vecA2c4[0][0]};
-		double zval2[5] {fzArm2[0], fzArm2[1], fzArm2[2], fzArm2[3], fzArm2[4]};
 		struct Fitvals vals_post;
 		vals_post = Getgradient(xval2,zval2);
-		double grad_after = vals_post.grad;
+		grad_after = vals_post.grad;
 		double chi2_after = vals_post.chi2;
-
-		double grad = (grad_before+grad_after)/(1+grad_before*grad_after);
-		double p = Getmomentum(0.5,2,grad);
-		cout << p << endl;
-		h10->Fill(p);
+		}
+	//	double grad = (grad_before+grad_after)/(1+grad_before*grad_after);
+	//	double p = Getmomentum(0.5,2,grad);
+	//	cout << p << endl;
+	//	h10->Fill(p);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -463,10 +478,11 @@ void Reco() {
 // 		As this is a nested loop it takes a while to run so just taking normal hits is fine 
 // 		for the moment.
 //
-	if (false) {
+	if (true) {
 		double xval1op[5];
 		struct Fitvals optimise;
 		double grad_before_op;
+		double inter_before_op;
 		double chi2_min {100};
 
 		for (Int_t p=0; p < nhitsA1c0; p++) {
@@ -483,6 +499,8 @@ void Reco() {
 
 							if (optimise.chi2 < chi2_min) {
 								grad_before_op = optimise.grad;
+								inter_before_op = optimise.inter;
+								chi2_min = optimise.chi2;
 							}
 										
                                         	}
@@ -492,7 +510,8 @@ void Reco() {
 		}
 		double xval2op[5];
                 struct Fitvals optimise2;
-                double grad_after_op;
+                double grad_after_op{0};
+		double inter_after_op{0};
                 double chi2_min2 {100};
 
                 for (Int_t p=0; p < nhitsA2c0; p++) {
@@ -509,6 +528,8 @@ void Reco() {
 
                                                         if (optimise2.chi2 < chi2_min2) {
                                                                 grad_after_op = optimise2.grad;
+								inter_after_op = optimise2.inter;
+								chi2_min2 = optimise2.chi2;
                                                         }
 
                                                 }
@@ -516,12 +537,45 @@ void Reco() {
                                 }
                         }
                 }
+		grad_before = grad_before_op;
+		inter_before = inter_before_op;
+		grad_after  = grad_after_op;
+		inter_after = inter_after_op;
+	}
+	double grad = (grad_before+grad_after)/(1+grad_before*grad_after);
+        double p = abs(Getmomentum(0.5,2,grad));
+        //cout << p << endl;
+        h10->Fill(p);
+	printf("\r Event %d",i);
+	//cout<<endl;
+	double fitval1[5];
+	for (int p = 0; p<5; p++) {	
+		fitval1[p] = straightline(zval1[p], grad_before, inter_before) * 1000;
+	}
+	TGraph* gr = new TGraph(5,zval1,fitval1);
+	double fitval2[5];
+        for (int l = 0; l<5; l++) {
+                fitval2[l] = straightline(zval2[l], grad_after, inter_after)*1000;
+	}
+        TGraph* gr2 = new TGraph(5,zval2,fitval2);
+
+	mg->Add(gr);
+	mg2->Add(gr2); 
 	}
 
-	}
+
+	cout << "Saving output pdf" <<endl;
 	TCanvas canvas2("canvas");
+	canvas2.Print("output.pdf[");
 	h10->Draw();
+	canvas2.Print("output.pdf[");
+	canvas2.Clear();
+	mg->Draw("AC");
+	canvas2.Print("output.pdf[");
+        canvas2.Clear();
+        mg2->Draw("AC");
 	canvas2.Print("output.pdf");
+        canvas2.Print("output.pdf]");
 
 }
 
