@@ -30,4 +30,4 @@
 /B5/generator/sigmaAngle 0. deg
 
 # Run five events
-/run/beamOn 100
+/run/beamOn 1000

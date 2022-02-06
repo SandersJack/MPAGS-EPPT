@@ -77,7 +77,8 @@ class B5DetectorConstruction : public G4VUserDetectorConstruction
     G4LogicalVolume* fCellLogical;
     G4LogicalVolume* fHadCalScintiLogical;
     G4LogicalVolume* fMagneticLogical;
-    
+    G4LogicalVolume* fLeadLogical;
+
     std::vector<G4VisAttributes*> fVisAttributes;
     
     G4double fArmAngle;

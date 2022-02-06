@@ -38,7 +38,7 @@ double straightline(double zval, double m, double c) {
 }
 
 void Reco() {
-	TFile *f = new TFile("rootfiles/1000evnt.root");
+	TFile *f = new TFile("rootfiles/50Gev_Pb.root");
 	f->ls();
 	TTree *t = (TTree*)f->Get("B5");
 	Int_t nentries = t->GetEntries();
@@ -563,6 +563,7 @@ void Reco() {
 	mg2->Add(gr2); 
 	}
 
+	h10->Fit("gaus");
 
 	cout << "Saving output pdf" <<endl;
 	TCanvas canvas2("canvas");

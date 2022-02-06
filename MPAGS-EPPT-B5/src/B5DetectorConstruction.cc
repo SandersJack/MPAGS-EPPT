@@ -80,6 +80,7 @@ B5DetectorConstruction::B5DetectorConstruction()
   fWirePlane1Logical(nullptr), fWirePlane2Logical(nullptr),
   fCellLogical(nullptr), fHadCalScintiLogical(nullptr),
   fMagneticLogical(nullptr),
+  fLeadLogical(nullptr),
   fVisAttributes(),
   fArmAngle(0.*deg), fArmRotation(nullptr), fSecondArmPhys(nullptr)
 
@@ -141,6 +142,12 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct()
                     "magneticPhysical",worldLogical,
                     false,0,checkOverlaps);
   
+  if (true) {
+	auto leadSolid = new G4Box("LeadPlate",1*m,1*m, 25*mm);
+	fLeadLogical = new G4LogicalVolume(leadSolid, lead, "leadLogical");
+	new G4PVPlacement(0,G4ThreeVector(0,0,-2*m), fLeadLogical, "LeadPhysical", worldLogical,false,0,checkOverlaps);
+  }
+
   // set step limit in tube with magnetic field  
   G4UserLimits* userLimits = new G4UserLimits(1*m);
   fMagneticLogical->SetUserLimits(userLimits);
