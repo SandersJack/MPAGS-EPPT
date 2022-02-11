@@ -17,7 +17,7 @@ double Getmomentum(double B,double L, double grad) {
 
 struct Fitvals Getgradient(double xval[5], double zval[5]){
 	struct Fitvals v;
-	double xerrors[5] {0.1,0.1,0.1,0.1,0.1};
+	double xerrors[5] {0,0,0,0,0};
         double zerrors[5] {0  ,  0,  0,  0,  0};
 	TGraphErrors* line = new TGraphErrors(5, zval, xval, zerrors, xerrors);
        	line->Fit("pol1", "q");
@@ -38,7 +38,7 @@ double straightline(double zval, double m, double c) {
 }
 
 void Reco() {
-	TFile *f = new TFile("rootfiles/50Gev_Pb.root");
+	TFile *f = new TFile("rootfiles/1000evnt.root");
 	f->ls();
 	TTree *t = (TTree*)f->Get("B5");
 	Int_t nentries = t->GetEntries();
@@ -95,7 +95,7 @@ void Reco() {
 		
 		//out << PD1_x->size() << "," << PD1_z->size() << endl;
 		for (UInt_t t=0; t<PD1_x->size(); t++) {
-			fVD1_x[i][t] = PD1_x->at(t) + rand->Gaus(-0.1,0.1);
+			fVD1_x[i][t] = PD1_x->at(t); // + rand->Gaus(-0.1,0.1);
 			fVD1_z[i][t] = PD1_z->at(t);
 			fVD1_y[i][t] = PD1_y->at(t);
 
@@ -113,7 +113,7 @@ void Reco() {
 		//double VD2_y[nD2Hits];
 
 		for (UInt_t t=0; t<PD2_x->size(); t++) {
-                        fVD2_x[i][t] = PD2_x->at(t) + rand->Gaus(-0.1,0.1);
+                        fVD2_x[i][t] = PD2_x->at(t); // + rand->Gaus(-0.1,0.1);
                         fVD2_z[i][t] = PD2_z->at(t);
 			fVD2_y[i][t] = PD2_y->at(t);
                         h3->Fill(fVD2_z[i][t],fVD2_x[i][t]);
@@ -154,7 +154,7 @@ void Reco() {
 	fzArm2[3] =   3;  //5.5;// * m
 	fzArm2[4] =   4;   //6. ;// * m  
 
-	TH1F *h10 = new TH1F("h10","Momentum",100,40,60);
+	TH1F *h10 = new TH1F("h10","Momentum",100,160,240);
 	TMultiGraph *mg = new TMultiGraph();	
 	TMultiGraph *mg2 = new TMultiGraph();
 		 //nentries
@@ -543,7 +543,7 @@ void Reco() {
 		inter_after = inter_after_op;
 	}
 	double grad = (grad_before+grad_after)/(1+grad_before*grad_after);
-        double p = abs(Getmomentum(0.5,2,grad));
+        double p = abs(Getmomentum(1,2,grad));
         //cout << p << endl;
         h10->Fill(p);
 	printf("\r Event %d",i);
