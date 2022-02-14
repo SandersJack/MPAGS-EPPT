@@ -17,7 +17,7 @@ double Getmomentum(double B,double L, double grad) {
 
 struct Fitvals Getgradient(double xval[5], double zval[5]){
 	struct Fitvals v;
-	double xerrors[5] {0,0,0,0,0};
+	double xerrors[5] {0.1,0.1,0.1,0.1,0.1};
         double zerrors[5] {0  ,  0,  0,  0,  0};
 	TGraphErrors* line = new TGraphErrors(5, zval, xval, zerrors, xerrors);
        	line->Fit("pol1", "q");
@@ -95,7 +95,7 @@ void Reco() {
 		
 		//out << PD1_x->size() << "," << PD1_z->size() << endl;
 		for (UInt_t t=0; t<PD1_x->size(); t++) {
-			fVD1_x[i][t] = PD1_x->at(t); // + rand->Gaus(-0.1,0.1);
+			fVD1_x[i][t] = PD1_x->at(t) + rand->Gaus(-0.1,0.1);
 			fVD1_z[i][t] = PD1_z->at(t);
 			fVD1_y[i][t] = PD1_y->at(t);
 
@@ -113,7 +113,7 @@ void Reco() {
 		//double VD2_y[nD2Hits];
 
 		for (UInt_t t=0; t<PD2_x->size(); t++) {
-                        fVD2_x[i][t] = PD2_x->at(t); // + rand->Gaus(-0.1,0.1);
+                        fVD2_x[i][t] = PD2_x->at(t) + rand->Gaus(-0.1,0.1);
                         fVD2_z[i][t] = PD2_z->at(t);
 			fVD2_y[i][t] = PD2_y->at(t);
                         h3->Fill(fVD2_z[i][t],fVD2_x[i][t]);
@@ -154,7 +154,7 @@ void Reco() {
 	fzArm2[3] =   3;  //5.5;// * m
 	fzArm2[4] =   4;   //6. ;// * m  
 
-	TH1F *h10 = new TH1F("h10","Momentum",100,160,240);
+	TH1F *h10 = new TH1F("h10","Momentum",100,40,60);
 	TMultiGraph *mg = new TMultiGraph();	
 	TMultiGraph *mg2 = new TMultiGraph();
 		 //nentries
@@ -174,35 +174,35 @@ void Reco() {
 //
 //			Counting how many Hits there are in each chambers 
 //
-//
+		//i=334;
+		//std:: cout << nD1Hits[i] << "," << nD2Hits[i] << std::endl;
 		for (Int_t t=0; t<nD1Hits[i]; t++) {
-			switch(fVD1_z[i][t]){
-				case 0:
-					nhitsA1c0 += 1;	
-				case 1:
+			if (fVD1_z[i][t] == 0){
+					nhitsA1c0++;	
+			}else if (fVD1_z[i][t] == 1) {
 					nhitsA1c1++;
-				case 2: 
+			}else if (fVD1_z[i][t] == 2) { 
 					nhitsA1c2++;
-				case 3:
+			}else if (fVD1_z[i][t] == 3) {
 					nhitsA1c3++;
-				case 4:
+			}else if (fVD1_z[i][t] == 4) {
 					nhitsA1c4++;
 			}
 		}
 		for (Int_t t=0; t<nD2Hits[i]; t++) {
-                        switch(fVD2_z[i][t]){
-                                case 0:
+                        if (fVD2_z[i][t] == 0){
                                         nhitsA2c0++;
-                                case 1:
+                        } else if( fVD2_z[i][t] == 1) {
                                         nhitsA2c1++;
-                                case 2:
+                        } else if (fVD2_z[i][t] == 2) {
                                         nhitsA2c2++;
-                                case 3:
+                        } else if (fVD2_z[i][t] == 3) { 
                                         nhitsA2c3++;
-                                case 4:
+                        } else if (fVD2_z[i][t] == 4) {
                                         nhitsA2c4++;
                         }
                 }
+		//std::cout << nhitsA1c0 << "," << nhitsA1c1 << "," << nhitsA1c2 << "," << nhitsA1c3 << "," << nhitsA1c4 << std::endl;
 		// Initialise vectors containing positions of each hit in each chamber
 		double vecA1c0[nhitsA1c0][2];
 		double vecA1c1[nhitsA1c1][2];
@@ -543,10 +543,10 @@ void Reco() {
 		inter_after = inter_after_op;
 	}
 	double grad = (grad_before+grad_after)/(1+grad_before*grad_after);
-        double p = abs(Getmomentum(1,2,grad));
+        double p = abs(Getmomentum(0.5,2,grad));
         //cout << p << endl;
         h10->Fill(p);
-	printf("\r Event %d",i);
+	std::cout << "Event = " << i << std::endl;
 	//cout<<endl;
 	double fitval1[5];
 	for (int p = 0; p<5; p++) {	
