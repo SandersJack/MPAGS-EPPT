@@ -11,7 +11,7 @@ struct Fitvals {
 
 double Getmomentum(double B,double L, double grad) {
         double angle = atan(grad);
-        double p = (0.3*B*L)/(2*sin(angle));
+        double p = (0.3*B*L)/(sin(angle));
 	return p;
 }
 
@@ -38,7 +38,7 @@ double straightline(double zval, double m, double c) {
 }
 
 void Reco() {
-	TFile *f = new TFile("rootfiles/1000evnt.root");
+	TFile *f = new TFile("rootfiles/100GeV0_5T.root");
 	f->ls();
 	TTree *t = (TTree*)f->Get("B5");
 	Int_t nentries = t->GetEntries();
@@ -142,19 +142,19 @@ void Reco() {
 	double fzArm1[5] , fzArm2[5];
 	//std::vector<double> vec[10]; 
 	
-	fzArm1[0] =   0; //- 6. ;// * m
-	fzArm1[1] =   1;  //- 5.5;// * m
-	fzArm1[2] =   2;   //- 5. ;// * m
-	fzArm1[3] =   3;  //- 4.5;// * m 
-	fzArm1[4] =   4;  //- 4. ;// * m
+	fzArm1[0] =  - 6. ;// * m
+	fzArm1[1] =  - 5.5;// * m
+	fzArm1[2] =  - 5. ;// * m
+	fzArm1[3] =  - 4.5;// * m 
+	fzArm1[4] =  - 4. ;// * m
 
-	fzArm2[0] =   0; //4.0;// * m
-	fzArm2[1] =   1; //4.5;// * m
-	fzArm2[2] =   2; //  //5. ;// * m
-	fzArm2[3] =   3;  //5.5;// * m
-	fzArm2[4] =   4;   //6. ;// * m  
+	fzArm2[0] =   4.0;// * m
+	fzArm2[1] =   4.5;// * m
+	fzArm2[2] =   5. ;// * m
+	fzArm2[3] =   5.5;// * m
+	fzArm2[4] =   6. ;// * m  
 
-	TH1F *h10 = new TH1F("h10","Momentum",100,40,60);
+	TH1F *h10 = new TH1F("h10","Momentum",100,60,140);
 	TMultiGraph *mg = new TMultiGraph();	
 	TMultiGraph *mg2 = new TMultiGraph();
 		 //nentries
@@ -558,6 +558,11 @@ void Reco() {
                 fitval2[l] = straightline(zval2[l], grad_after, inter_after)*1000;
 	}
         TGraph* gr2 = new TGraph(5,zval2,fitval2);
+	
+	if (i ==20) {
+		double ECx = straightline( 7, grad_after,inter_after) *1000;
+		std::cout << ECx << std::endl;
+	}
 
 	mg->Add(gr);
 	mg2->Add(gr2); 

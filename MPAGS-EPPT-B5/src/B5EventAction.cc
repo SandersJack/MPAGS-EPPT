@@ -188,19 +188,24 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
     totalCalEdep[iDet] = 0.;
     for (unsigned long i = 0; i < hc->GetSize(); ++i) {
       G4double edep = 0.;
+      G4int icell =0;
       // The EM and Had calorimeter hits are of different types
       if (iDet == 0) {
         auto hit = static_cast<B5EmCalorimeterHit*>(hc->GetHit(i));
         edep = hit->GetEdep();
+	icell = i;//hit->GetCellID();
+	//std::cout << "EM Calo " << edep << " "<< icell<<" "<< hit->GetPos()<<std::endl;
       } else {
         auto hit = static_cast<B5HadCalorimeterHit*>(hc->GetHit(i));
         edep = hit->GetEdep();
-      }
+	icell = i;
+ 	//std::cout << "HAD Calo " << edep << " "<< icell<<std::endl;
+     }
       if ( edep > 0. ) {
         totalCalHit[iDet]++;
         totalCalEdep[iDet] += edep;
       }
-      fCalEdep[iDet][i] = edep;
+      fCalEdep[iDet][icell] = edep;
     }
     // columns 2, 3
     analysisManager->FillNtupleDColumn(iDet + 2, totalCalEdep[iDet]);

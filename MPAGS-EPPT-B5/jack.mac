@@ -1,5 +1,3 @@
-# Change the default number of workers 
-# (in multi-threading mode which is the default)
 #/run/numberOfWorkers 4
 
 # Initialize kernel
@@ -19,7 +17,7 @@
 /gun/particle mu+
 
 # Set the particle's initial momentum
-/B5/generator/momentum 50. GeV
+/B5/generator/momentum 100. GeV
 
 # Set standard deviation of initial momentum. 
 # Zero means all initial particles have exactly the same momentum.
@@ -30,4 +28,4 @@
 /B5/generator/sigmaAngle 0. deg
 
 # Run five events
-/run/beamOn 1000
+/run/beamOn 1001

@@ -1,5 +1,6 @@
 \documentclass[a4paper,11pt,twoside]{article}
 \usepackage[left=2cm, right=2cm, top=2.0cm, bottom=2.0cm]{geometry}
+\usepackage{tcolorbox}
 %\usepackage{helvet}
 \usepackage{mathptmx} %% consistently change to Times
 \usepackage[utf8]{inputenc}
@@ -383,5 +384,131 @@ Having discussed the basic structure of the code, and how to run/modify it, the 
 \item Repeat with positrons, but also try to reconstruct the positron energy using the calorimeter information.
 \item Repeat with protons, but also try to reconstruct the energy of the protons using the calorimeter information.
 \end{itemize}
+
+
+\section{Discussion on Tracking}
+Back-of-the-envelope calculation of the momentum resolution of the spectrometer.
+
+\subsection{Angular measurement}
+
+For high-energy particles
+\begin{equation}
+  p_T =\frac{0.3BL}{\sin\left(\frac{\Delta\theta}{2}\right)}\approx 2\frac{0.3BL}{\Delta\theta}
+\end{equation}
+where $p_T$ is the momentum on the transverse plane to the magnetic
+field in ${\rm GeV}$, $B$ the magnetic field strength in ${\rm T}$,
+$L$ the path length in the magnetic field in ${\rm m}$, and
+$\Delta\theta=\theta_{2}-\theta_{1}$ the difference in direction angle
+between the exit and entry of the magnetic field region.
+
+Assuming the magnetic field strength and the path length are precisely known,
+the momentum uncertainty due to the measurement of $\Delta\theta$ is:
+\begin{equation}
+  \sigma_{p_T} = 2\frac{0.3BL}{\left(\Delta\theta\right)^2}\sigma_{\Delta\theta} =
+    \frac{p_T}{\Delta\theta}\sigma_{\Delta\theta}
+\end{equation}
+
+\begin{equation}
+  \left.\frac{\sigma_{p_T}}{p_T}\right|_{\rm Ang}= \frac{\sigma_{\Delta\theta}}{\Delta\theta} =\sqrt{2}\frac{\sigma_\theta}{\Delta\theta}
+\end{equation}
+
+Each arm has a length $D$, and is composed of 5 layers in equal distances each with position resolution $\sigma_y$.
+Approximating the angular measurement as
+\begin{equation}
+  \theta=\frac{y_5-y_1}{x_5-x_1}=\frac{y_5-y_1}{D}\Rightarrow \sigma_\theta=\frac{\sqrt{2}\sigma_y}{D}
+\end{equation}
+
+\begin{tcolorbox}[colback=black!5!white,colframe=black!75!white,title=Angular Resolution]
+  We will investigate the approximation:
+  \begin{equation}
+    \sigma_\theta=\frac{\sqrt{2}\sigma_y}{D}
+  \end{equation}
+
+  To derive this resolution, we assumed that the angular measurement is only given only from the first and last detector planes of the arm:
+  \begin{equation}
+    \theta'=\frac{y_5-y_1}{x_5-x_1}=\frac{y_5-y_1}{D}\Rightarrow \sigma_{\theta'}=\frac{\sqrt{2}\sigma_y}{D}.
+  \end{equation}
+  A better approximation would be to obtain another estimate $\theta''$ of the angle by using the second and fourth layers and combine the two measurements, which can be assume to be independent\footnote{There will be a correlation due to multiple scattering, but this can be neglected.}.
+  \begin{equation}
+    \theta''=\frac{y_4-y_2}{x_4-x_2}=\frac{y_4-y_2}{D/2}\Rightarrow \sigma_{\theta''}=2\sigma_{\theta'}
+  \end{equation}
+  And thus:
+  \begin{equation}
+    \theta = \left(\frac{\theta'}{\sigma^2_{\theta'}}+\frac{\theta''}{\sigma^2_{\theta''}}\right)/\left(\frac{1}{\sigma^2_{\theta'}}+\frac{1}{\sigma^2_{\theta''}}\right)
+    \end{equation}
+  and
+  \begin{equation}
+    \sigma_{\theta} = 1/\sqrt{\frac{1}{\sigma^2_{\theta'}}+\frac{1}{\sigma^2_{\theta''}}} =
+    1/\sqrt{\frac{1}{\sigma^2_{\theta'}}+\frac{1}{4\sigma^2_{\theta'}}} = \sigma_{\theta'} \frac{2}{\sqrt{5}} \approx 0.89\sigma_{\theta'} 
+  \end{equation}
+  Adding the information of layer 3 would bring less further improvement, both due to the short lever-arm (even if combined with the first or last layer) and because it will involve one of the measurements already used in the estimate, and thus will have a correlated component in its uncertainty.
+
+  What does this discussion suggest for our detector design?
+\end{tcolorbox}
+
+Thus,
+\begin{equation}
+  \left.\frac{\sigma_{p_T}}{p_T}\right|_{\rm Ang}\approx \sqrt{2}\frac{\sqrt{2}\sigma_y}{D\Delta\theta}
+  = \frac{2\sigma_y}{D\Delta\theta}
+\end{equation}
+
+For $p_T=100\;{\rm GeV}$, $B=1\;{\rm T}$, $L=2\;{\rm m}$, $D=2\;{\rm m}$, $\sigma_y=100\;{\rm \mu m}$:
+\begin{equation}
+  \Delta\theta = 2\frac{0.3BL}{p_T}=1.2\cdot 10^{-2}
+\end{equation}
+and
+\begin{equation}
+  \left.\frac{\sigma_{p_T}}{p_T}\right|_{\rm Ang}= \frac{2\sigma_y}{D\Delta\theta}=0.83\%
+\end{equation}
+
+\subsection{Multiple scattering}
+The momentum uncertainty due to multiple scattering, will be dominated
+by scattering in the material (argon) at the last layer of the first
+arm and at the first layer of the second arm, and by the scattering in
+the material (air) between the two arms.
+
+The standard deviation of the angle due to multiple scattering is:
+\begin{equation}
+  \theta_0 = \frac{13.6{\rm MeV}}{\beta c p}z\sqrt{\frac{x}{X_0}}\left[1+0.038\ln(x/X_0)\right]
+\end{equation}
+
+\begin{equation}
+  \left.\frac{\sigma_{p_T}}{p_T}\right|_{\rm MS}= \frac{\sqrt{2}\theta^{\rm Ar}_0\oplus \theta^{\rm Air}_0}{\Delta\theta}
+\end{equation}
+
+
+
+For the radiation lengths we have $X_0^{\rm Ar}=117\;{\rm m}$ and $X_0^{\rm Air}=303\;{\rm m}$.
+The thickness of the detector layer is $d$ while the distance between the two arms is $\ell$.
+Given that for our example $d=2\;{\rm cm}$ and $\ell=6.5\;{\rm m}$,
+\begin{equation}
+\theta^{\rm Air}_{0} = \frac{13.6}{10^5}\sqrt{\frac{6.5}{303}}\left[1+0.038\ln(6.5/303)\right]=  1.7\cdot 10^{-5}
+\end{equation}
+\begin{equation}
+\theta^{\rm Ar}_{0} = \frac{13.6}{10^5}\sqrt{\frac{0.02}{117}}\left[1+0.038\ln(0.02/117)\right]=  1.2\cdot 10^{-6}
+\end{equation}
+
+Thus
+\begin{equation}
+  \left.\frac{\sigma_{p_T}}{p_T}\right|_{\rm MS}= \frac{\sqrt{2}\theta^{\rm Ar}_0\oplus \theta^{\rm Air}_0}{\Delta\theta}\approx
+  \frac{\theta^{\rm Air}_0}{\Delta\theta}= 0.14\%
+\end{equation}
+
+\section{Discussion on Calorimetry}
+
+\subsection{Electromagnetic Calorimeter}
+
+The radiation length, $X_0$ for ${\rm CsI}$ is $1.860\;{\rm cm}$, while the Moli\'{e}re radius is $3.531\;{\rm cm}$.
+For this reason the calorimeter has a depth of $56\;{\rm cm}$.
+
+The calorimeter 80 cells in total (20x4).
+
+\subsection{Hadronic Calorimeter}
+The hadronic calorimeter is Lead-PlasticScintillator.
+Lead has a radiation length of 5.613 mm and a nuclear interaction length of 18.248 cm
+while the plastic scintillator 42.544 cm and 69.969 cm, respectively.
+each layer is $5\;{\rm cm}$ long with the final cm being the scintillator.
+
+in total it has a depth of 1 meter, with 80\% being lead. so, approximately 5.48 radiation length.
 
 \end{document}
