@@ -115,6 +115,7 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct()
   auto scintillator = G4Material::GetMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
   auto csI = G4Material::GetMaterial("G4_CESIUM_IODIDE");
   auto lead = G4Material::GetMaterial("G4_Pb");
+  auto galactic = G4Material::GetMaterial("G4_Galactic");
   
   // Option to switch on/off checking of volumes overlaps
   //
@@ -123,14 +124,14 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct()
   // geometries --------------------------------------------------------------
   // experimental hall (world volume)
   auto worldSolid    = new G4Box("worldBox",10.*m,3.*m,10.*m);
-  auto worldLogical  = new G4LogicalVolume(worldSolid,air,"worldLogical");
+  auto worldLogical  = new G4LogicalVolume(worldSolid,galactic,"worldLogical");
   auto worldPhysical = new G4PVPlacement(0,G4ThreeVector(),worldLogical,"worldPhysical",0,
                         false,0,checkOverlaps);
   
   // Tube with Local Magnetic field
   //auto magneticSolid = new G4Tubs("magneticTubs",0.,1.*m,1.*m,0.,360.*deg);
   auto magneticSolid = new G4Box("magneticTubs",1.*m,1.*m,1.*m);
-  fMagneticLogical = new G4LogicalVolume(magneticSolid, air, "magneticLogical");
+  fMagneticLogical = new G4LogicalVolume(magneticSolid, galactic, "magneticLogical");
 
   // placement of Tube
   // G4RotationMatrix* fieldRot = new G4RotationMatrix();
@@ -154,14 +155,14 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct()
   
   // first arm
   auto firstArmSolid  = new G4Box("firstArmBox",1.5*m,1.*m,3.*m);
-  auto firstArmLogical= new G4LogicalVolume(firstArmSolid,air,"firstArmLogical");
+  auto firstArmLogical= new G4LogicalVolume(firstArmSolid,galactic,"firstArmLogical");
   new G4PVPlacement(0,G4ThreeVector(0.,0.,-5.*m),firstArmLogical,
                     "firstArmPhysical",worldLogical,
                     false,0,checkOverlaps);
   
   // second arm
   auto secondArmSolid  = new G4Box("secondArmBox",2.*m,2.*m,3.5*m);
-  auto secondArmLogical= new G4LogicalVolume(secondArmSolid,air,"secondArmLogical");
+  auto secondArmLogical= new G4LogicalVolume(secondArmSolid,galactic,"secondArmLogical");
   auto x = -5.*m * std::sin(fArmAngle);
   auto z =  5.*m * std::cos(fArmAngle);
   fSecondArmPhys = new G4PVPlacement(fArmRotation,G4ThreeVector(x,0.,z),secondArmLogical,

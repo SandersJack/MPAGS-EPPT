@@ -17,7 +17,7 @@ double Getmomentum(double B,double L, double grad) {
 
 struct Fitvals Getgradient(double xval[5], double zval[5]){
 	struct Fitvals v;
-	double xerrors[5] {0.1,0.1,0.1,0.1,0.1};
+	double xerrors[5] {0,0,0,0,0};
         double zerrors[5] {0  ,  0,  0,  0,  0};
 	TGraphErrors* line = new TGraphErrors(5, zval, xval, zerrors, xerrors);
        	line->Fit("pol1", "q");
@@ -38,7 +38,7 @@ double straightline(double zval, double m, double c) {
 }
 
 void Reco() {
-	TFile *f = new TFile("rootfiles/100GeV0_5T.root");
+	TFile *f = new TFile("rootfiles/newSim/100GeV0_5Tgalactic.root");
 	f->ls();
 	TTree *t = (TTree*)f->Get("B5");
 	Int_t nentries = t->GetEntries();
@@ -95,7 +95,7 @@ void Reco() {
 		
 		//out << PD1_x->size() << "," << PD1_z->size() << endl;
 		for (UInt_t t=0; t<PD1_x->size(); t++) {
-			fVD1_x[i][t] = PD1_x->at(t) + rand->Gaus(-0.1,0.1);
+			fVD1_x[i][t] = PD1_x->at(t);// + rand->Gaus(-0.1,0.1);
 			fVD1_z[i][t] = PD1_z->at(t);
 			fVD1_y[i][t] = PD1_y->at(t);
 
@@ -113,7 +113,7 @@ void Reco() {
 		//double VD2_y[nD2Hits];
 
 		for (UInt_t t=0; t<PD2_x->size(); t++) {
-                        fVD2_x[i][t] = PD2_x->at(t) + rand->Gaus(-0.1,0.1);
+                        fVD2_x[i][t] = PD2_x->at(t);// + rand->Gaus(-0.1,0.1);
                         fVD2_z[i][t] = PD2_z->at(t);
 			fVD2_y[i][t] = PD2_y->at(t);
                         h3->Fill(fVD2_z[i][t],fVD2_x[i][t]);
